@@ -5,7 +5,6 @@ import com.cris959.SupermarketApi.exception.NotFoundException;
 import com.cris959.SupermarketApi.mapper.Mapper;
 import com.cris959.SupermarketApi.model.Product;
 import com.cris959.SupermarketApi.repository.ProductRepository;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -56,8 +55,25 @@ public class ProductService implements IProductService {
         return Mapper.toDTO(updatedProduct);
     }
 
+//    @Override
+//    public void deleteProduct(Long id) {
+//        if (repository.existsById(id)) {
+//            throw new NotFoundException("Producto no encontrado para eliminarlo!");
+//        }
+//        repository.deleteById(id);
+//    }
+
     @Override
     public void deleteProduct(Long id) {
+        // 1. Buscamos el producto
+        Product product = repository.findById(id)
+                .orElseThrow(() -> new NotFoundException("¡Producto no encontrado para eliminarlo!"));
 
+        // 2. Opción A: Manual (si no usas @SQLDelete)
+//        product.setActive(false);
+//        repository.save(product);
+
+        // 2. Opción B: Automática (si añadiste @SQLDelete en la entidad)
+        repository.delete(product);
     }
 }

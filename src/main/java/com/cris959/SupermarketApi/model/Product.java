@@ -1,13 +1,12 @@
 package com.cris959.SupermarketApi.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 
 @Getter
@@ -15,6 +14,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@SQLDelete(sql = "UPDATE products SET active = false WHERE id = ?")
+@SQLRestriction("active = true") // Reemplaza a @Where en versiones nuevas
 public class Product {
 
     @Id
@@ -22,6 +23,9 @@ public class Product {
     private Long id;
 
     private String name;
+
+    @Column(nullable = false)
+    private boolean active = true; // Valor por defecto
 
     private String category;
 
