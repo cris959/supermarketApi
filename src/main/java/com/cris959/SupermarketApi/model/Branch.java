@@ -18,8 +18,8 @@ public class Branch {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombre;
+    private String name;
 
-    private String direccion;
+    private String address;
 
 }

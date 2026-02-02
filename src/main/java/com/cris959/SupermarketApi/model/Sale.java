@@ -19,15 +19,15 @@ public class Sale {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDate fecha;
+    private LocalDate date;
 
-    private String estado;
+    private String status;
 
     private Double total;
 
     @ManyToOne
-    private Branch sucursal;
+    private Branch branch;
 
-    @OneToMany(mappedBy = "venta")
-    private List<OrderItem> detalleVentas = new ArrayList<>();
+    @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL)
+    private List<OrderItem> items = new ArrayList<>();
 }

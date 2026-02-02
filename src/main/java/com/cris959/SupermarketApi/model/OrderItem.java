@@ -17,11 +17,11 @@ public class OrderItem {
 
     // Venta
     @ManyToOne
-    private Sale venta;
+    private Sale sale;
 
     // Producto
     @ManyToOne
-    private Product producto;
-    private Integer cantProd;
-    private Double precio;
+    private Product product;
+    private Integer quantity;
+    private Double unitPrice;
 }

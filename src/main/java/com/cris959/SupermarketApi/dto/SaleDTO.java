@@ -7,14 +7,14 @@ import java.util.List;
 public record SaleDTO(
         // Datos de la Venta
         Long id,
-        LocalDate fecha,
-        String estado,
+        LocalDate date,
+        String status,
 
         // Datos de la sucursal
-        Long idSucursal,
+        Long idBranch,
 
         // Lista detalles
-        List<OrderItemDTO> detalle,
+        List<OrderItemDTO> items,
 
         // Total venta
        Double total

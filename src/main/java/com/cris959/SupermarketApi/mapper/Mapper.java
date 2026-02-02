@@ -11,10 +11,10 @@ public class Mapper {
         if (product == null) return null;
         return new ProductDTO(
                 product.getId(),
-                product.getNombre(),
-                product.getCategoria(),
-                product.getPrecio(),
-                product.getCantidad()
+                product.getName(),
+                product.getCategory(),
+                product.getPrice(),
+                product.getStock()
         );
 
     }

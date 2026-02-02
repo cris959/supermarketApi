@@ -4,8 +4,8 @@ package com.cris959.SupermarketApi.dto;
 public record OrderItemDTO(
         Long id,
         String nombreProd,
-        Integer cantProd,
-        Double precio,
+        Integer quantity,
+        Double unitPrice,
         Double subTotal
 ) {
 }
