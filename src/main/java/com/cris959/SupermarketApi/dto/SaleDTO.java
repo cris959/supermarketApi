@@ -11,7 +11,8 @@ public record SaleDTO(
         String status,
 
         // Datos de la sucursal
-        Long idBranch,
+        Long branchId,
+        String branchName,
 
         // Lista detalles
         List<OrderItemDTO> items,

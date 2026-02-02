@@ -1,8 +1,11 @@
 package com.cris959.SupermarketApi.service;
 
 import com.cris959.SupermarketApi.dto.ProductDTO;
+import com.cris959.SupermarketApi.exception.NotFoundException;
 import com.cris959.SupermarketApi.mapper.Mapper;
+import com.cris959.SupermarketApi.model.Product;
 import com.cris959.SupermarketApi.repository.ProductRepository;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,12 +30,30 @@ public class ProductService implements IProductService {
 
     @Override
     public ProductDTO createProduct(ProductDTO productDTO) {
-        return null;
+        // 1. Convertimos DTO a Entidad
+        Product product = Mapper.toEntity(productDTO);
+
+        // 2. Guardamos la entidad
+        Product savedProduct = repository.save(product);
+
+        // 3. Devolvemos el DTO (usando toDTO con mayúsculas)
+        return Mapper.toDTO(savedProduct);
     }
 
     @Override
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
-        return null;
+        // Vamos a buscar si existe ese producto
+        Product product = repository.findById(id)
+                .orElseThrow(()-> new NotFoundException("Producto no encontrado con id: " + id));
+        // 2. Seteamos los datos que vienen del DTO (la fuente de la actualización)
+        product.setName(productDTO.name());
+        product.setCategory(productDTO.category());
+        product.setPrice(productDTO.price());
+        product.setStock(productDTO.stock());
+
+        // 3. Guardamos y mapeamos de vuelta (Ojo con las mayúsculas: toDTO)
+        Product updatedProduct = repository.save(product);
+        return Mapper.toDTO(updatedProduct);
     }
 
     @Override
