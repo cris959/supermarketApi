@@ -43,7 +43,7 @@ public class ProductService implements IProductService {
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
         // Vamos a buscar si existe ese producto
         Product product = repository.findById(id)
-                .orElseThrow(()-> new NotFoundException("Producto no encontrado con id: " + id));
+                .orElseThrow(()-> new NotFoundException("Product not found with ID: " + id));
         // 2. Seteamos los datos que vienen del DTO (la fuente de la actualización)
         product.setName(productDTO.name());
         product.setCategory(productDTO.category());
@@ -67,7 +67,7 @@ public class ProductService implements IProductService {
     public void deleteProduct(Long id) {
         // 1. Buscamos el producto
         Product product = repository.findById(id)
-                .orElseThrow(() -> new NotFoundException("¡Producto no encontrado para eliminarlo!"));
+                .orElseThrow(() -> new NotFoundException("Product not found to be deleted!"));
 
         // 2. Opción A: Manual (si no usas @SQLDelete)
 //        product.setActive(false);
@@ -75,5 +75,13 @@ public class ProductService implements IProductService {
 
         // 2. Opción B: Automática (si añadiste @SQLDelete en la entidad)
         repository.delete(product);
+    }
+
+    @Override
+    public List<ProductDTO> getArchivedProducts() {
+        return repository.findInactiveProducts()
+                .stream()
+                .map(Mapper::toDTO)
+                .toList();
     }
 }

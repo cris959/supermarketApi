@@ -1,16 +1,18 @@
 package com.cris959.SupermarketApi.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
+@Table(name = "branches")
+@SQLDelete(sql = "UPDATE branches SET active = false WHERE id = ?")
+@SQLRestriction("active = true")
 @Entity
 public class Branch {
 
@@ -22,4 +24,6 @@ public class Branch {
 
     private String address;
 
+    @Column(nullable = false)
+    private boolean active = true;
 }

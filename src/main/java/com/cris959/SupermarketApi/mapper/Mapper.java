@@ -54,7 +54,7 @@ public class Mapper {
     }
 
     // Mapeo de Sucursal a SucuarsalDTO
-    public static BranchDTO toDto(Branch branch) {
+    public static BranchDTO toDTO(Branch branch) {
         if (branch == null) return null;
         return new BranchDTO(
                 branch.getId(),
@@ -72,5 +72,16 @@ public class Mapper {
         product.setPrice(dto.price());
         product.setStock(dto.stock());
         return product;
+    }
+
+    public static Branch toEntity(BranchDTO branchDTO) {
+        if (branchDTO == null) return null;
+        Branch branch = new Branch();
+        // 1. Usamos SET para asignar los valores que vienen del DTO
+        branch.setName(branchDTO.name());
+        branch.setAddress(branchDTO.address());
+
+        // El ID no se setea aquí si es una creación nueva (autoincremental)
+        return branch;
     }
 }

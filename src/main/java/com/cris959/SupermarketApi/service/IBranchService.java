@@ -11,4 +11,6 @@ public interface IBranchService {
     BranchDTO createBranch(BranchDTO branchDTO);             // Crear nueva
     BranchDTO updateBranch(Long id, BranchDTO branchDTO);    // Actualizar por ID
     void deleteBranch(Long id);                              // Eliminar por ID
+
+    List<BranchDTO> getArchivedBranches();
 }

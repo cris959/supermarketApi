@@ -14,6 +14,7 @@ import org.hibernate.annotations.SQLRestriction;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "products")
 @SQLDelete(sql = "UPDATE products SET active = false WHERE id = ?")
 @SQLRestriction("active = true") // Reemplaza a @Where en versiones nuevas
 public class Product {
