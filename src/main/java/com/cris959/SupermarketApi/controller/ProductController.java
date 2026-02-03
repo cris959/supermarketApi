@@ -20,11 +20,11 @@ public class ProductController {
 
     // 1. Obtener solo los activos (Usa el findAll estándar con @SQLRestriction)
     @GetMapping
-    public ResponseEntity<List<ProductDTO>> getAllActive() {
+    public ResponseEntity<List<ProductDTO>> getAllActive() {  // @SQLRestriction("active = true") siempre traerá solo los activos.
         return ResponseEntity.ok(productService.getProducts());
     }
 
-    // 2. Obtener ABSOLUTAMENTE TODOS (Tu Opción A)
+    // 2. Obtener ABSOLUTAMENTE TODOS
     @GetMapping("/all")
     public ResponseEntity<List<ProductDTO>> getAllIncludingInactive() {
         return ResponseEntity.ok(productService.getAllProductsIncludingInactive());

@@ -6,6 +6,7 @@ import com.cris959.SupermarketApi.mapper.Mapper;
 import com.cris959.SupermarketApi.model.Branch;
 import com.cris959.SupermarketApi.repository.BranchRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -56,6 +57,24 @@ public class BranchService implements IBranchService {
 
     public List<BranchDTO> getArchivedBranches() {
         return repository.findInactiveBranches()
+                .stream()
+                .map(Mapper::toDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BranchDTO getBranchById(Long id) {
+        return repository.findById(id)
+                .map(Mapper::toDTO)
+                .orElseThrow(()-> new RuntimeException("Branch not found with ID: " + id));
+
+    }
+
+    @Override
+    public List<BranchDTO> getAllBranchesIncludingInactive() {
+        // Llamamos al método con la Query Nativa que ya tenías
+        return repository.findAllIncludingInactive()
                 .stream()
                 .map(Mapper::toDTO)
                 .toList();

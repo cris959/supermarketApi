@@ -1,7 +1,6 @@
 package com.cris959.SupermarketApi.service;
 
 import com.cris959.SupermarketApi.dto.BranchDTO;
-import com.cris959.SupermarketApi.model.Branch;
 
 import java.util.List;
 
@@ -13,4 +12,8 @@ public interface IBranchService {
     void deleteBranch(Long id);                              // Eliminar por ID
 
     List<BranchDTO> getArchivedBranches();
+
+    BranchDTO getBranchById(Long id);
+
+    List<BranchDTO> getAllBranchesIncludingInactive();
 }

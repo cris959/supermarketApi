@@ -56,7 +56,8 @@ public class Mapper {
         return new BranchDTO(
                 branch.getId(),
                 branch.getName(),
-                branch.getAddress()
+                branch.getAddress(),
+                branch.isActive()
         );
     }
 
