@@ -32,18 +32,6 @@ public class SaleService implements ISaleService {
         this.branchRepository = branchRepository;
     }
 
-// Version vieja
-//    @Override
-//    public List<SaleDTO> getSales() {
-//        List<Sale> sales = saleRepository.findAll();
-//        List<SaleDTO> salesDTO = new ArrayList<>();
-//        SaleDTO saleDTO;
-//        for (Sale sale : sales) {
-//            saleDTO = Mapper.toDTO(sale);
-//            salesDTO.add(saleDTO);
-//        }
-//        return salesDTO;
-//    }
 
     @Override
     public List<SaleDTO> getSales() {
@@ -102,8 +90,61 @@ public class SaleService implements ISaleService {
 
 
     @Override
+    @Transactional
     public SaleDTO updateSale(Long id, SaleDTO saleDTO) {
-        return null;
+        // 1. Buscar la venta existente
+        Sale existingSale = saleRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Cannot update: Sale not found"));
+
+        // 2. REVERTIR STOCK: Devolvemos al inventario lo que se vendió originalmente
+        for (OrderItem item : existingSale.getItems()) {
+            Product product = item.getProduct();
+            product.setStock(product.getStock() + item.getQuantity());
+            productRepository.save(product);
+        }
+
+        // 3. ACTUALIZAR SUCURSAL (si cambió)
+        Branch branch = branchRepository.findById(saleDTO.branchId())
+                .orElseThrow(() -> new NotFoundException("Branch not found"));
+        existingSale.setBranch(branch);
+
+        // 4. LIMPIAR ÍTEMS ANTIGUOS Y PROCESAR NUEVOS
+        // Primero vaciamos la lista actual para que JPA pueda manejar la orfandad de los registros
+        existingSale.getItems().clear();
+
+        List<OrderItem> newItems = saleDTO.items().stream().map(itemDTO -> {
+            Product product = productRepository.findById(itemDTO.id())
+                    .orElseThrow(() -> new NotFoundException("Product ID " + itemDTO.id() + " not found!"));
+
+            // Validar stock nuevo (ahora que ya devolvimos el stock anterior)
+            if (product.getStock() < itemDTO.quantity()) {
+                throw new RuntimeException("Insufficient stock: " + product.getName());
+            }
+
+            // Restar stock nuevo
+            product.setStock(product.getStock() - itemDTO.quantity());
+            productRepository.save(product);
+
+            OrderItem newItem = new OrderItem();
+            newItem.setProduct(product);
+            newItem.setQuantity(itemDTO.quantity());
+            newItem.setUnitPrice(product.getPrice());
+            newItem.setSale(existingSale);
+            return newItem;
+        }).toList();
+
+        // 5. ASIGNAR NUEVOS VALORES Y RECALCULAR TOTAL
+        existingSale.getItems().addAll(newItems);
+
+        double newTotal = newItems.stream()
+                .mapToDouble(i -> i.getUnitPrice() * i.getQuantity())
+                .sum();
+        existingSale.setTotal(newTotal);
+        existingSale.setStatus("UPDATED");
+
+        // 6. Guardar y retornar
+        Sale updatedSale = saleRepository.save(existingSale);
+        return Mapper.toDTO(updatedSale);
     }
 
     @Override

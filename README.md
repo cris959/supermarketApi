@@ -1,0 +1,79 @@
+# 🛒 Supermarket API
+
+API REST para la gestión de sucursales, productos y ventas de una cadena de supermercados, construida con **Spring Boot 3**, **JPA/Hibernate** y **Java 21**.
+
+## 📊 Modelo de Datos (DER)
+
+A continuación se detalla la estructura de la base de datos. El sistema utiliza **Borrado Lógico** en las entidades principales para mantener la integridad histórica.
+
+```mermaid
+erDiagram
+    BRANCH ||--o{ SALE : "registra"
+    PRODUCT ||--o{ ORDER_ITEM : "se incluye en"
+    SALE ||--|{ ORDER_ITEM : "contiene"
+
+    BRANCH {
+        Long id PK
+        String name
+        String address
+        Boolean active
+    }
+
+    PRODUCT {
+        Long id PK
+        String name
+        Double price
+        Integer stock
+        Boolean active
+    }
+
+    SALE {
+        Long id PK
+        LocalDate date
+        String status
+        Double total
+        Long branch_id FK
+        Boolean active
+    }
+
+    ORDER_ITEM {
+        Long id PK
+        Long sale_id FK
+        Long product_id FK
+        Integer quantity
+        Double unit_price
+    }
+```
+    
+    
+
+🚀 Características Principales
+Borrado Lógico (Soft Delete): Implementado mediante las anotaciones @SQLDelete y @SQLRestriction para Branch, Product y Sale.
+
+Gestión de Stock: Al crear una venta, el sistema valida y descuenta automáticamente el stock de los productos.
+
+Auditoría de Ventas: Al anular una venta (borrado lógico), el sistema devuelve automáticamente el stock al inventario y marca la transacción como "ANULADA".
+
+Precios Históricos: Se almacena el unit_price en el momento de la venta para evitar que cambios de precio futuros alteren los registros históricos.
+
+🛠️ Tecnologías Utilizadas
+Java 21 (Uso de Records, Streams y nuevas APIs).
+
+Spring Boot 3.x
+
+Spring Data JPA
+
+Lombok
+
+MySQL / PostgreSQL
+
+📂 Estructura del Proyecto
+model/: Entidades JPA.
+
+dto/: Data Transfer Objects (Records) para comunicación segura.
+
+repository/: Interfaces de acceso a datos con consultas nativas para auditoría.
+
+service/: Lógica de negocio y manejo de transacciones (@Transactional).
+
+mapper/: Conversión entre Entidades y DTOs.
