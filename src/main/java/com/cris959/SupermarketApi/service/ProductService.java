@@ -6,6 +6,7 @@ import com.cris959.SupermarketApi.mapper.Mapper;
 import com.cris959.SupermarketApi.model.Product;
 import com.cris959.SupermarketApi.repository.ProductRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -73,6 +74,16 @@ public class ProductService implements IProductService {
     @Override
     public List<ProductDTO> getArchivedProducts() {
         return repository.findInactiveProducts()
+                .stream()
+                .map(Mapper::toDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductDTO> getAllProductsIncludingInactive() {
+        // Llamamos al método con la Query Nativa que ya tenías
+        return repository.findAllIncludingInactive()
                 .stream()
                 .map(Mapper::toDTO)
                 .toList();

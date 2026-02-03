@@ -11,4 +11,6 @@ public interface IProductService {
     void deleteProduct(Long id);
 
     List<ProductDTO> getArchivedProducts();
+
+    List<ProductDTO> getAllProductsIncludingInactive();
 }
