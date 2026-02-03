@@ -13,4 +13,6 @@ public interface IProductService {
     List<ProductDTO> getArchivedProducts();
 
     List<ProductDTO> getAllProductsIncludingInactive();
+
+    ProductDTO getProductById(Long id);
 }

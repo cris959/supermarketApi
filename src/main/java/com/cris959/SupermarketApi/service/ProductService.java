@@ -21,6 +21,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional(readOnly = true) // Optimiza consultas de lectura
     public List<ProductDTO> getProducts() {
         return repository.findAll()
                 .stream()
@@ -29,6 +30,15 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public ProductDTO getProductById(Long id) {
+        return repository.findById(id)
+                .map(Mapper::toDTO)
+                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
+    }
+
+    @Override
+    @Transactional // Vital para operaciones de escritura
     public ProductDTO createProduct(ProductDTO productDTO) {
         // 1. Convertimos DTO a Entidad
         Product product = Mapper.toEntity(productDTO);
@@ -41,6 +51,7 @@ public class ProductService implements IProductService {
     }
 
     @Override
+    @Transactional
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
         // Vamos a buscar si existe ese producto
         Product product = repository.findById(id)
@@ -58,6 +69,7 @@ public class ProductService implements IProductService {
 
 
     @Override
+    @Transactional
     public void deleteProduct(Long id) {
         // 1. Buscamos el producto
         Product product = repository.findById(id)
@@ -72,8 +84,10 @@ public class ProductService implements IProductService {
     }
 
     @Override
-    public List<ProductDTO> getArchivedProducts() {
-        return repository.findInactiveProducts()
+    @Transactional(readOnly = true)
+    public List<ProductDTO> getAllProductsIncludingInactive() {
+        // Llamamos al método con la Query Nativa que ya tenías
+        return repository.findAllIncludingInactive()
                 .stream()
                 .map(Mapper::toDTO)
                 .toList();
@@ -81,9 +95,8 @@ public class ProductService implements IProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProductDTO> getAllProductsIncludingInactive() {
-        // Llamamos al método con la Query Nativa que ya tenías
-        return repository.findAllIncludingInactive()
+    public List<ProductDTO> getArchivedProducts() {
+        return repository.findInactiveProducts()
                 .stream()
                 .map(Mapper::toDTO)
                 .toList();
