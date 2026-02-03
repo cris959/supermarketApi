@@ -9,6 +9,8 @@ import com.cris959.SupermarketApi.model.Branch;
 import com.cris959.SupermarketApi.model.Product;
 import com.cris959.SupermarketApi.model.Sale;
 
+import java.util.List;
+
 public class Mapper {
 
     // Mapeo de Producto a ProductoDTO
@@ -27,28 +29,23 @@ public class Mapper {
     // Mapeo de Venta a VentaDTO
     public static SaleDTO toDTO(Sale sale) {
         if (sale == null) return null;
-        // 1. Convertimos la lista de items y calculamos el total en un solo paso
-        var items = sale.getItems().stream().map(item-> new OrderItemDTO(
-                item.getId(),
-                item.getProduct().getName(),
-                item.getQuantity(),
-                item.getUnitPrice(),
-                item.getQuantity() * item.getUnitPrice()
-        ))
+        List<OrderItemDTO> itemDTOs = sale.getItems().stream()
+                .map(item -> new OrderItemDTO(
+                        item.getProduct().getId(),
+                        item.getProduct().getName(),
+                        item.getQuantity(),
+                        item.getUnitPrice(),
+                        (item.getUnitPrice() * item.getQuantity()) // <--- SUBTOTAL CALCULADO AQUÍ
+                ))
                 .toList();
-        // 2. Calculamos el total desde la lista ya mapeada
-        double total = items.stream()
-                .mapToDouble(OrderItemDTO::subTotal)
-                .sum();
 
-// 3. Retornamos el Record SaleDTO usando su constructor
         return new SaleDTO(
                 sale.getId(),
                 sale.getDate(),
                 sale.getStatus(),
                 sale.getBranch().getId(),
                 sale.getBranch().getName(),
-                items,
+                itemDTOs,
                 sale.getTotal()
         );
     }

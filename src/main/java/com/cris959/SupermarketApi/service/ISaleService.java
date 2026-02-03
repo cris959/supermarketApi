@@ -10,4 +10,6 @@ public interface ISaleService {
     SaleDTO createSale(SaleDTO saleDTO);
     SaleDTO updateSale(Long id, SaleDTO saleDTO);
     void deleteSale(Long id);
+
+    List<SaleDTO> getArchivedSales();
 }

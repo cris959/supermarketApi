@@ -55,13 +55,6 @@ public class ProductService implements IProductService {
         return Mapper.toDTO(updatedProduct);
     }
 
-//    @Override
-//    public void deleteProduct(Long id) {
-//        if (repository.existsById(id)) {
-//            throw new NotFoundException("Producto no encontrado para eliminarlo!");
-//        }
-//        repository.deleteById(id);
-//    }
 
     @Override
     public void deleteProduct(Long id) {

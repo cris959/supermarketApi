@@ -50,7 +50,7 @@ public class BranchService implements IBranchService {
     public void deleteBranch(Long id) {
         Branch branch = repository.findById(id)
                 .orElseThrow(()-> new NotFoundException("Branch not found to be deleted!"));
-
+        // Automática (con @SQLDelete en la entidad)
         repository.delete(branch);
     }
 
