@@ -8,9 +8,11 @@ import java.util.List;
 
 public interface BranchRepository extends JpaRepository<Branch, Long> {
 
+    // SQL Nativo
     @Query(value = "SELECT * FROM branches WHERE active = false", nativeQuery = true)
     List<Branch> findInactiveBranches();
 
+    // SQL Nativo
     @Query(value = "SELECT * FROM branches", nativeQuery = true)
     List<Branch> findAllIncludingInactive();
 

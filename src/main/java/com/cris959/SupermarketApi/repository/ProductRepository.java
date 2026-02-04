@@ -9,9 +9,11 @@ import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
 
+    // SQL Nativo
     @Query(value = "SELECT * FROM products WHERE active = false", nativeQuery = true)
     List<Product> findInactiveProducts();
 
+    // SQL Nativo
     @Query(value = "SELECT * FROM products", nativeQuery = true)
     List<Product> findAllIncludingInactive();
 }

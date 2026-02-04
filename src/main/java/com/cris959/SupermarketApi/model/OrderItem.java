@@ -25,6 +25,7 @@ public class OrderItem {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false) // Nombre de la FK claro
     private Product product;
+
     private Integer quantity;
     private Double unitPrice;
 }

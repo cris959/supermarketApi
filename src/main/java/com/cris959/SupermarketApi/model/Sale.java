@@ -37,5 +37,5 @@ public class Sale {
     private Branch branch;
 
     @OneToMany(mappedBy = "sale", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<OrderItem> items;
+    private List<OrderItem> items = new ArrayList<>();;
 }
