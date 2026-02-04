@@ -5,10 +5,7 @@ import com.cris959.SupermarketApi.dto.OrderItemDTO;
 import com.cris959.SupermarketApi.dto.SaleDTO;
 import com.cris959.SupermarketApi.exception.NotFoundException;
 import com.cris959.SupermarketApi.mapper.Mapper;
-import com.cris959.SupermarketApi.model.Branch;
-import com.cris959.SupermarketApi.model.OrderItem;
-import com.cris959.SupermarketApi.model.Product;
-import com.cris959.SupermarketApi.model.Sale;
+import com.cris959.SupermarketApi.model.*;
 import com.cris959.SupermarketApi.repository.BranchRepository;
 import com.cris959.SupermarketApi.repository.ProductRepository;
 import com.cris959.SupermarketApi.repository.SaleRepository;
@@ -178,7 +175,7 @@ public class SaleService implements ISaleService {
         }
 
         // 3. Cambiamos el estado (opcional, para que visualmente se vea "ANULADA")
-        sale.setStatus("CANCELLED");
+        sale.setStatus(SaleStatus.CANCELLED);
         saleRepository.save(sale);
 
         // 4. Ejecutamos el borrado lógico (hace el UPDATE active = false)

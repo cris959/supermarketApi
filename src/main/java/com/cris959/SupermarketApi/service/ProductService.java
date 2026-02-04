@@ -43,6 +43,8 @@ public class ProductService implements IProductService {
         // 1. Convertimos DTO a Entidad
         Product product = Mapper.toEntity(productDTO);
 
+        // Test
+//        System.out.println("Guardando producto: " + product.getName() + " - Activo: " + product.isActive());
         // 2. Guardamos la entidad
         Product savedProduct = repository.save(product);
 

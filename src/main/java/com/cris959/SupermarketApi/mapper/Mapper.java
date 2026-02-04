@@ -35,7 +35,7 @@ public class Mapper {
                         item.getProduct().getName(),
                         item.getQuantity(),
                         item.getUnitPrice(),
-                        (item.getUnitPrice() * item.getQuantity()) // <--- SUBTOTAL CALCULADO AQUÍ
+                        (item.getSubtotal()) // <--- SUBTOTAL DESDE OrderItem
                 ))
                 .toList();
 
@@ -69,6 +69,8 @@ public class Mapper {
         product.setCategory(dto.category());
         product.setPrice(dto.price());
         product.setStock(dto.stock());
+        product.setActive(true);
+
         return product;
     }
 

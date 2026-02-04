@@ -28,4 +28,9 @@ public class OrderItem {
 
     private Integer quantity;
     private Double unitPrice;
+
+    public Double getSubtotal() {
+        return (this.unitPrice != null && this.quantity != null)
+                ? this.unitPrice * this.quantity : 0.0;
+    }
 }

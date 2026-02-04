@@ -26,7 +26,9 @@ public class Sale {
 
     private LocalDate date;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private SaleStatus status = SaleStatus.COMPLETED;
 
     private Double total;
 
