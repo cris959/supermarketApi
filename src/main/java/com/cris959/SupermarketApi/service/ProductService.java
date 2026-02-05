@@ -34,7 +34,7 @@ public class ProductService implements IProductService {
     public ProductDTO getProductById(Long id) {
         return repository.findById(id)
                 .map(Mapper::toDTO)
-                .orElseThrow(() -> new RuntimeException("Product not found with ID: " + id));
+                .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id));
     }
 
     @Override
@@ -63,8 +63,12 @@ public class ProductService implements IProductService {
         product.setCategory(productDTO.category());
         product.setPrice(productDTO.price());
         product.setStock(productDTO.stock());
-
-        // 3. Guardamos y mapeamos de vuelta (Ojo con las mayúsculas: toDTO)
+        // 3. NUEVO: Procesamos el estado active (si viene en el DTO)
+        // Usamos una validación para evitar NullPointerException si el DTO no trae el campo
+        if (productDTO.active() != null) {
+            product.setActive(productDTO.active());
+        }
+        // 4. Guardamos y mapeamos de vuelta (Ojo con las mayúsculas: toDTO)
         Product updatedProduct = repository.save(product);
         return Mapper.toDTO(updatedProduct);
     }
@@ -99,6 +103,33 @@ public class ProductService implements IProductService {
     @Transactional(readOnly = true)
     public List<ProductDTO> getArchivedProducts() {
         return repository.findInactiveProducts()
+                .stream()
+                .map(Mapper::toDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductDTO> searchByName(String name) {
+        return repository.findByNameContainingIgnoreCase(name)
+                .stream()
+                .map(Mapper::toDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductDTO> getProductsByCategory(String category) {
+        return repository.findByCategoryIgnoreCase(category)
+                .stream()
+                .map(Mapper::toDTO)
+                .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductDTO> getLowStockProducts(Integer threshold) {
+        return repository.findByStockLessThan(threshold)
                 .stream()
                 .map(Mapper::toDTO)
                 .toList();

@@ -60,4 +60,22 @@ public class ProductController {
         productService.deleteProduct(id);
         return ResponseEntity.noContent().build();
     }
+
+    // 8. Buscar por nombre (Búsqueda parcial: "Coca" encuentra "Coca Cola")
+    @GetMapping("/search")
+    public ResponseEntity<List<ProductDTO>> searchByName(@RequestParam String name) {
+        return ResponseEntity.ok(productService.searchByName(name));
+    }
+
+    // 9. Filtrar por categoría
+    @GetMapping("/category/{category}")
+    public ResponseEntity<List<ProductDTO>> getByCategory(@PathVariable String category) {
+        return ResponseEntity.ok(productService.getProductsByCategory(category));
+    }
+
+    // 10. Alerta de Stock Bajo (Para que el dueño sepa qué comprar)
+    @GetMapping("/low-stock")
+    public ResponseEntity<List<ProductDTO>> getLowStock(@RequestParam(defaultValue = "10") Integer threshold) {
+        return ResponseEntity.ok(productService.getLowStockProducts(threshold));
+    }
 }

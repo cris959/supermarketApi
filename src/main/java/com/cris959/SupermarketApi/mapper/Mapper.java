@@ -21,7 +21,8 @@ public class Mapper {
                 product.getName(),
                 product.getCategory(),
                 product.getPrice(),
-                product.getStock()
+                product.getStock(),
+                product.isActive()
         );
 
     }

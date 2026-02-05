@@ -77,3 +77,19 @@ repository/: Interfaces de acceso a datos con consultas nativas para auditoría.
 service/: Lógica de negocio y manejo de transacciones (@Transactional).
 
 mapper/: Conversión entre Entidades y DTOs.
+
+## 🏗️ Arquitectura de Capas
+
+El proyecto sigue el patrón de diseño de capas para separar las responsabilidades de la base de datos, la lógica de negocio y la presentación de datos.
+
+| Capa | Responsabilidad | Ejemplo de Implementación |
+| :--- | :--- | :--- |
+| **Repository** | **Acceso a Datos:** Consultas directas a MySQL (SQL/JPQL). Trabaja únicamente con Entidades. | `List<Product> findByNameContaining(String name);` |
+| **IProductService** | **Contrato de Servicio:** Define qué operaciones están disponibles para el controlador. | `List<ProductDTO> searchByName(String name);` |
+| **ProductService** | **Lógica de Negocio:** Procesa datos, aplica reglas y transforma Entidades en DTOs. | `repo.findByName(...)` → `Mapper.toDTO` → `return` |
+
+### 🔄 Flujo de Datos
+1. El **Controller** recibe una petición y llama al **IProductService**.
+2. El **ProductService** solicita los datos al **Repository**.
+3. El **Repository** consulta la base de datos **MySQL** y devuelve una **Entidad**.
+4. El **ProductService** recibe la Entidad, la convierte en **DTO** mediante un Mapper y la devuelve al Controller.

@@ -6,6 +6,7 @@ public record ProductDTO(
         String name,
         String category,
         Double price,
-        Integer stock
+        Integer stock,
+        Boolean active
 ) {
 }

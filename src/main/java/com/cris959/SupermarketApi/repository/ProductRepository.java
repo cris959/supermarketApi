@@ -15,4 +15,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     // SQL Nativo
     @Query(value = "SELECT * FROM products", nativeQuery = true)
     List<Product> findAllIncludingInactive();
+
+    List<Product> findByNameContainingIgnoreCase(String name);
+    List<Product> findByCategoryIgnoreCase(String category);
+    List<Product> findByStockLessThan(Integer threshold);
 }
