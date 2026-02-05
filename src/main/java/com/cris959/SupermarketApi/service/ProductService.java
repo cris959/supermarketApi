@@ -1,6 +1,7 @@
 package com.cris959.SupermarketApi.service;
 
 import com.cris959.SupermarketApi.dto.ProductDTO;
+import com.cris959.SupermarketApi.exception.NoResultsFoundException;
 import com.cris959.SupermarketApi.exception.NotFoundException;
 import com.cris959.SupermarketApi.mapper.Mapper;
 import com.cris959.SupermarketApi.model.Product;
@@ -111,8 +112,12 @@ public class ProductService implements IProductService {
     @Override
     @Transactional(readOnly = true)
     public List<ProductDTO> searchByName(String name) {
-        return repository.findByNameContainingIgnoreCase(name)
-                .stream()
+        List<Product> products = repository.findByNameContainingIgnoreCase(name);
+        if (products.isEmpty()) {
+            throw new NoResultsFoundException("No products were found matching your search terms.: " + name);
+        }
+
+        return products.stream()
                 .map(Mapper::toDTO)
                 .toList();
     }

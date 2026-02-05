@@ -7,13 +7,12 @@ import java.util.List;
 public interface IBranchService {
 
     List<BranchDTO>getBranches();                            // Listar todas
-    BranchDTO createBranch(BranchDTO branchDTO);             // Crear nueva
-    BranchDTO updateBranch(Long id, BranchDTO branchDTO);    // Actualizar por ID
-    void deleteBranch(Long id);                              // Eliminar por ID
-
-    List<BranchDTO> getArchivedBranches();
+    List<BranchDTO> getArchivedBranches();                   // Devuelve active = false
+    List<BranchDTO> getAllBranchesIncludingInactive();       // Devuelve all
+    List<BranchDTO> searchByAddress(String address);         // Vusca sucursales
 
     BranchDTO getBranchById(Long id);
-
-    List<BranchDTO> getAllBranchesIncludingInactive();
+    BranchDTO createBranch(BranchDTO branchDTO);
+    BranchDTO updateBranch(Long id, BranchDTO branchDTO);
+    void deleteBranch(Long id);
 }

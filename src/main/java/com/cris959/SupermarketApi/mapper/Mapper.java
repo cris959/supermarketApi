@@ -82,6 +82,10 @@ public class Mapper {
         branch.setName(branchDTO.name());
         branch.setAddress(branchDTO.address());
 
+        // Seteamos el active
+        if (branchDTO.active() != null) {
+            branch.setActive(branchDTO.active());
+        }
         // El ID no se setea aquí si es una creación nueva (autoincremental)
         return branch;
     }

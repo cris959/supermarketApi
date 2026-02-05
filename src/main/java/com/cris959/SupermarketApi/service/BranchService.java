@@ -1,6 +1,7 @@
 package com.cris959.SupermarketApi.service;
 
 import com.cris959.SupermarketApi.dto.BranchDTO;
+import com.cris959.SupermarketApi.exception.NoResultsFoundException;
 import com.cris959.SupermarketApi.exception.NotFoundException;
 import com.cris959.SupermarketApi.mapper.Mapper;
 import com.cris959.SupermarketApi.model.Branch;
@@ -78,5 +79,17 @@ public class BranchService implements IBranchService {
                 .stream()
                 .map(Mapper::toDTO)
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BranchDTO> searchByAddress(String address) {
+        java.util.List<Branch> branches = repository.findByAddressContainingIgnoreCase(address);
+
+        if (branches.isEmpty()) {
+            throw new NoResultsFoundException("Oops! We couldn't find any branches that contain: " + address);
+        }
+
+        return branches.stream().map(Mapper::toDTO).toList();
     }
 }

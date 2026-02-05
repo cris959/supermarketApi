@@ -16,4 +16,6 @@ public interface BranchRepository extends JpaRepository<Branch, Long> {
     @Query(value = "SELECT * FROM branches", nativeQuery = true)
     List<Branch> findAllIncludingInactive();
 
+    // Busca sucursales cuya dirección contenga el texto buscado
+    List<Branch> findByAddressContainingIgnoreCase(String address);
 }

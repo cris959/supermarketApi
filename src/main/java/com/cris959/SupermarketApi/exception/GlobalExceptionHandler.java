@@ -2,12 +2,15 @@ package com.cris959.SupermarketApi.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     // Maneja nuestra excepción personalizada "NotFoundException"
@@ -41,5 +44,16 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(NoResultsFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNoResultsFound(NoResultsFoundException ex) {
+        Map<String, Object> response = new LinkedHashMap<>();
+        response.put("timestamp", LocalDateTime.now());
+        response.put("status", HttpStatus.OK.value()); // Devolvemos 200 porque la petición fue correcta
+        response.put("message", ex.getMessage());
+        response.put("data", Collections.emptyList()); // Lista vacía para no romper el Frontend
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
