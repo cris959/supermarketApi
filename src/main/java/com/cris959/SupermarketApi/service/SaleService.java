@@ -6,9 +6,7 @@ import com.cris959.SupermarketApi.dto.SaleDTO;
 import com.cris959.SupermarketApi.exception.NotFoundException;
 import com.cris959.SupermarketApi.mapper.Mapper;
 import com.cris959.SupermarketApi.model.*;
-import com.cris959.SupermarketApi.repository.BranchRepository;
-import com.cris959.SupermarketApi.repository.ProductRepository;
-import com.cris959.SupermarketApi.repository.SaleRepository;
+import com.cris959.SupermarketApi.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,9 +39,10 @@ public class SaleService implements ISaleService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public SaleDTO getSaleById(Long id) {
         // Buscamos la venta y si no existe lanzamos excepción
-        Sale sale = saleRepository.findById(id)
+        Sale sale = saleRepository.findByIdWithProduct(id)
                 .orElseThrow(() -> new NotFoundException("Sale not found with ID: " + id));
         return Mapper.toDTO(sale);
     }
@@ -53,7 +52,7 @@ public class SaleService implements ISaleService {
     public SaleDTO createSale(SaleDTO saleDTO) {
         // 1. Buscar Sucursal
         Branch branch = branchRepository.findById(saleDTO.branchId())
-                .orElseThrow(() -> new NotFoundException("Branch not found!"));
+                .orElseThrow(() -> new NotFoundException("The requested branch does not exist or has been removed!"));
         // 2. Crear la entidad Sale base
         Sale sale = new Sale();
         sale.setBranch(branch);
@@ -170,22 +169,52 @@ public class SaleService implements ISaleService {
 
             // Sumamos la cantidad que se había vendido originalmente
             product.setStock(product.getStock() + item.getQuantity());
-
             productRepository.save(product);
         }
-
         // 3. Cambiamos el estado (opcional, para que visualmente se vea "ANULADA")
         sale.setStatus(SaleStatus.CANCELLED);
-        saleRepository.save(sale);
+        // --- CORRECCIÓN AQUÍ ---
+        // 4. CAMBIAMOS EL BORRADO LÓGICO
+        // En lugar de borrar, actualizamos el campo 'active'
+        // saleRepository.delete(sale); // <--- ESTO ESTÁ MAL
 
-        // 4. Ejecutamos el borrado lógico (hace el UPDATE active = false)
-        saleRepository.delete(sale);
+        // Asumiendo que tienes un médio setEnabled(false) o setActive(false)
+        sale.setActive(false);
+        saleRepository.save(sale); // <--- ESTO ES LO CORRECTO
     }
 
+    @Override
+    @Transactional(readOnly = true)
     public List<SaleDTO> getArchivedSales() {
-        return saleRepository.findInactiveSales()
-                .stream()
-                .map(Mapper::toDTO)
+        List<SaleProjection> projections = saleRepository.findArchivedSalesProjections();
+
+        return projections.stream()
+                .map(p -> {
+                    // 1. Buscamos ítems como filas crudas (Object[])
+                    List<Object[]> rawItems = saleRepository.findItemsBySaleIdRaw(p.getId());
+
+                    // 2. Convertimos Object[] a DTOs
+                    List<OrderItemDTO> itemsDTO = rawItems.stream()
+                            .map(row -> new OrderItemDTO(
+                                    ((Number) row[0]).longValue(), // id
+                                    (String) row[1],               // productName
+                                    ((Number) row[2]).intValue(),  // quantity
+                                    ((Number) row[3]).doubleValue(), // unitPrice
+                                    ((Number) row[4]).doubleValue()  // subTotal
+                            ))
+                            .toList();
+
+                    // 3. Armamos el SaleDTO final
+                    return new SaleDTO(
+                            p.getId(),
+                            p.getDate(),
+                            SaleStatus.valueOf(p.getStatus()),
+                            p.getBranchId(),
+                            p.getBranchName(),
+                            itemsDTO, // <-- Aquí deberían estar los datos
+                            p.getTotal()
+                    );
+                })
                 .toList();
     }
 
