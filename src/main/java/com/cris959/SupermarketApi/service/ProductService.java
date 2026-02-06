@@ -21,6 +21,7 @@ public class ProductService implements IProductService {
         this.repository = repository;
     }
 
+    // 1. getProduct
     @Override
     @Transactional(readOnly = true) // Optimiza consultas de lectura
     public List<ProductDTO> getProducts() {
@@ -30,6 +31,7 @@ public class ProductService implements IProductService {
                 .toList();
     }
 
+    // 2. getProductById
     @Override
     @Transactional(readOnly = true)
     public ProductDTO getProductById(Long id) {
@@ -38,6 +40,7 @@ public class ProductService implements IProductService {
                 .orElseThrow(() -> new NotFoundException("Product not found with ID: " + id));
     }
 
+    // 3. createProduct
     @Override
     @Transactional // Vital para operaciones de escritura
     public ProductDTO createProduct(ProductDTO productDTO) {
@@ -53,6 +56,7 @@ public class ProductService implements IProductService {
         return Mapper.toDTO(savedProduct);
     }
 
+    // 4. updateProduct
     @Override
     @Transactional
     public ProductDTO updateProduct(Long id, ProductDTO productDTO) {
@@ -74,7 +78,7 @@ public class ProductService implements IProductService {
         return Mapper.toDTO(updatedProduct);
     }
 
-
+    // 5. deleteProduct
     @Override
     @Transactional
     public void deleteProduct(Long id) {
@@ -90,6 +94,7 @@ public class ProductService implements IProductService {
         repository.delete(product);
     }
 
+    // 6. traer todos los productos incluso los inactivos
     @Override
     @Transactional(readOnly = true)
     public List<ProductDTO> getAllProductsIncludingInactive() {
@@ -100,6 +105,7 @@ public class ProductService implements IProductService {
                 .toList();
     }
 
+    // 7. traer productos archivados
     @Override
     @Transactional(readOnly = true)
     public List<ProductDTO> getArchivedProducts() {
@@ -109,6 +115,7 @@ public class ProductService implements IProductService {
                 .toList();
     }
 
+    // 8. buscar por nombre
     @Override
     @Transactional(readOnly = true)
     public List<ProductDTO> searchByName(String name) {
@@ -122,6 +129,7 @@ public class ProductService implements IProductService {
                 .toList();
     }
 
+    // 9. buscar por categoria
     @Override
     @Transactional(readOnly = true)
     public List<ProductDTO> getProductsByCategory(String category) {
@@ -131,6 +139,7 @@ public class ProductService implements IProductService {
                 .toList();
     }
 
+    // 10. buscar productos sin stock
     @Override
     @Transactional(readOnly = true)
     public List<ProductDTO> getLowStockProducts(Integer threshold) {

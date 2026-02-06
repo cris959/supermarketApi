@@ -1,5 +1,7 @@
 package com.cris959.SupermarketApi.controller;
 
+import com.cris959.SupermarketApi.dto.BranchReportDTO;
+import com.cris959.SupermarketApi.dto.GlobalReportDTO;
 import com.cris959.SupermarketApi.dto.SaleDTO;
 import com.cris959.SupermarketApi.service.ISaleService;
 import org.springframework.http.HttpStatus;
@@ -41,7 +43,7 @@ public class SaleController {
     // 4. Anular una venta (Borrado lógico)
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
-        saleService.deleteSale(id);
+        saleService.cancelSale(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -53,8 +55,13 @@ public class SaleController {
 
     // 6. Reporte: Total recaudado por sucursal
     @GetMapping("/reports/total-branch/{branchId}")
-    public ResponseEntity<Double> getTotalByBranch(@PathVariable Long branchId) {
+    public ResponseEntity<BranchReportDTO> getTotalByBranch(@PathVariable Long branchId) {
         return ResponseEntity.ok(saleService.getTotalSalesByBranch(branchId));
     }
 
+    // 7. Suma total de todas las Branches
+    @GetMapping("/reports/total-all-branches")
+    public ResponseEntity<GlobalReportDTO> getTotalAllBranches() {
+        return ResponseEntity.ok(saleService.getTotalSalesAllBranches());
+    }
 }

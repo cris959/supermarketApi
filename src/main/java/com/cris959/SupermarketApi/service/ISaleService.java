@@ -1,5 +1,7 @@
 package com.cris959.SupermarketApi.service;
 
+import com.cris959.SupermarketApi.dto.BranchReportDTO;
+import com.cris959.SupermarketApi.dto.GlobalReportDTO;
 import com.cris959.SupermarketApi.dto.SaleDTO;
 
 import java.util.List;
@@ -18,10 +20,13 @@ public interface ISaleService {
 
 //    SaleDTO updateSale(Long id, SaleDTO saleDTO);
 
-    void deleteSale(Long id);
+    void cancelSale(Long id);
 
     // Ver ventas anuladas
     List<SaleDTO> getArchivedSales();
 
-    Double getTotalSalesByBranch(Long branchId);
+    BranchReportDTO getTotalSalesByBranch(Long branchId);
+
+    // sumar el total de las branches
+    GlobalReportDTO getTotalSalesAllBranches();
 }

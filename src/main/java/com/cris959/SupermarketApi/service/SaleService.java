@@ -1,6 +1,8 @@
 package com.cris959.SupermarketApi.service;
 
 
+import com.cris959.SupermarketApi.dto.BranchReportDTO;
+import com.cris959.SupermarketApi.dto.GlobalReportDTO;
 import com.cris959.SupermarketApi.dto.OrderItemDTO;
 import com.cris959.SupermarketApi.dto.SaleDTO;
 import com.cris959.SupermarketApi.exception.NotFoundException;
@@ -29,7 +31,7 @@ public class SaleService implements ISaleService {
         this.branchRepository = branchRepository;
     }
 
-
+    // 1. Display sales
     @Override
     public List<SaleDTO> getSales() {
         return saleRepository.findAllWithDetails()
@@ -38,6 +40,7 @@ public class SaleService implements ISaleService {
                 .toList();
     }
 
+    // 2. Display getById
     @Override
     @Transactional(readOnly = true)
     public SaleDTO getSaleById(Long id) {
@@ -47,6 +50,7 @@ public class SaleService implements ISaleService {
         return Mapper.toDTO(sale);
     }
 
+    // 3. Create sale
     @Override
     @Transactional
     public SaleDTO createSale(SaleDTO saleDTO) {
@@ -156,9 +160,10 @@ public class SaleService implements ISaleService {
 //        return Mapper.toDTO(updatedSale);
 //    }
 
+    // 4. Delete sale
     @Override
     @Transactional
-    public void deleteSale(Long id) {
+    public void cancelSale(Long id) {
 // 1. Buscamos la venta (findById no la encontrará si ya está inactiva)
         Sale sale = saleRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("The sale does not exist or has already been canceled"));
@@ -183,6 +188,7 @@ public class SaleService implements ISaleService {
         saleRepository.save(sale); // <--- ESTO ES LO CORRECTO
     }
 
+    // 5. Display sales archived
     @Override
     @Transactional(readOnly = true)
     public List<SaleDTO> getArchivedSales() {
@@ -218,14 +224,31 @@ public class SaleService implements ISaleService {
                 .toList();
     }
 
+    // 6. Report-total by branch
     @Override
-    public Double getTotalSalesByBranch(Long branchId) {
-        // Verificamos si la sucursal existe primero
-        if (!branchRepository.existsById(branchId)) {
-            throw new NotFoundException("Branch not found");
-        }
+    public BranchReportDTO getTotalSalesByBranch(Long branchId) {
+        // 1. Buscamos la sucursal para obtener su nombre
+        Branch branch = branchRepository.findById(branchId)
+                .orElseThrow(() -> new NotFoundException("Branch not found"));
 
+        // 2. Calculamos el total
         Double total = saleRepository.sumTotalByBranch(branchId);
-        return (total != null) ? total : 0.0; // Evitamos el NullPointerException
+        double finalTotal = (total != null) ? total : 0.0;
+
+        // 3. Retornamos el DTO estructurado
+        return new BranchReportDTO(
+                branch.getId(),
+                branch.getName(),
+                finalTotal
+        );
+    }
+
+    // 7. Sumar el total de ventas de todas las branches
+    @Override
+    public GlobalReportDTO getTotalSalesAllBranches() {
+        Double total = saleRepository.sumTotalAllBranches();
+        double finalTotal = (total != null) ? total : 0.0;
+
+        return new GlobalReportDTO("Total Amount Collected!", finalTotal);
     }
 }
