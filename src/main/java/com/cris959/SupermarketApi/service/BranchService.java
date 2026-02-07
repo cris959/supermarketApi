@@ -38,12 +38,21 @@ public class BranchService implements IBranchService {
     }
 
     @Override
+    @Transactional
     public BranchDTO updateBranch(Long id, BranchDTO branchDTO) {
-        Branch branch = repository.findById(id)
+// 1. Buscamos en toda la base de datos, incluyendo inactivos
+        Branch branch = repository.findAllIncludingInactive().stream()
+                .filter(b -> b.getId().equals(id))
+                .findFirst()
                 .orElseThrow(()-> new NotFoundException("Branch not found with ID: " + id));
+
+        // 2. Actualizamos los datos
         branch.setName(branchDTO.name());
         branch.setAddress(branchDTO.address());
+        // Importante: Si quieres activarla, asegúrate de que el DTO traiga active = true
+        branch.setActive(branchDTO.active());
 
+        // 3. Guardamos los cambios
         Branch updateBranch = repository.save(branch);
         return Mapper.toDTO(updateBranch);
     }

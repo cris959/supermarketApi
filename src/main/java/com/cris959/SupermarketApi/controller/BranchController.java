@@ -18,6 +18,8 @@ public class BranchController {
     public BranchController(IBranchService branchService) {
         this.branchService = branchService;
     }
+
+
     // 1. Listar solo activos
     @GetMapping
     public ResponseEntity<List<BranchDTO>> getAllActive() {
