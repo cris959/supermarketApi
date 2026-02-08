@@ -4,24 +4,38 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 public class JwtTokenProvider {
 
-    // En producción, esta clave debe ser mucho más larga y guardarse en un lugar seguro (ej. variables de entorno)
-    private static final String SECRET = "estaesunaclavesecretademasiadolargaparaserseguraydebefirmar123456";
-    private static final Key SIGNING_KEY = Keys.hmacShaKeyFor(SECRET.getBytes());
+    // 1. Inyectar el valor desde la variable de entorno usando @Value
+    @Value("${jwt.secret}")
+    private String secret;
+    private Key signingKey;
 
-   // Generar token para usuario
-    public String generateToken(String username) {
-        Map<String, Object> claims = new HashMap<>();
+    @PostConstruct
+    public void init() {
+        //  Si secret es nulo o muy corto, esto fallará
+        if (secret == null || secret.length() < 32) {
+            throw new IllegalArgumentException("The 'jwt.secret' property must have at least 32 characters.");
+        }
+        this.signingKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
+    }
+
+    // Generar token incluyendo los roles
+    public String generateToken(String username, List<String> roles) {
+        Map<String, Object> claims = Map.of("roles", roles);
         return createToken(claims, username);
     }
 
@@ -29,35 +43,46 @@ public class JwtTokenProvider {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))  // 10 horas de validez
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))
-                .signWith(SIGNING_KEY, SignatureAlgorithm.HS256)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 horas
+                .signWith(signingKey, SignatureAlgorithm.HS256)
                 .compact();
     }
-    // Validar token
-    public boolean validateToken(String token, String username) {
-        final String usernameFromToken = extractUsername(token);
-        return (usernameFromToken.equals(username) && !isTokenExpired(token));
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(signingKey).build().parseClaimsJws(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
-    public String extractUsername(String token) {
-        return extractClaim(token, Claims::getSubject);
+    public String getUsernameFromJWT(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(signingKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+        return claims.getSubject();
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaims(token);
-        return claimsResolver.apply(claims);
-    }
+    //  Extraer roles del token
+    public List<SimpleGrantedAuthority> getRolesFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(signingKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
 
-    private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder().setSigningKey(SIGNING_KEY).build().parseClaimsJws(token).getBody();
-    }
+        List<String> roles = claims.get("roles", List.class);
+        // SI 'roles' ES NULO, NO LLAMAMOS A .stream()
+        if (roles == null) {
+            return List.of(); // Devuelve lista vacía
+        }
 
-    private boolean isTokenExpired(String token) {
-        return extractExpiration(token).before(new Date());
-    }
-
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
+        return roles.stream()
+                .map(SimpleGrantedAuthority::new)
+                .collect(Collectors.toList());
     }
 }

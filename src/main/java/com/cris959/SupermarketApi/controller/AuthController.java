@@ -1,13 +1,17 @@
 package com.cris959.SupermarketApi.controller;
 
 import com.cris959.SupermarketApi.config.JwtTokenProvider;
+import com.cris959.SupermarketApi.dto.LoginDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -21,14 +25,24 @@ public class AuthController {
 
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody Map<String, String> credentials) {
-        String username = credentials.get("username");
-        String password = credentials.get("password");
-
+    public ResponseEntity<String> authenticateUser(@RequestBody LoginDTO loginDTO) {
+        // 1. CORRECCIÓN: Autenticar primero y guardar el resultado
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password)
+                new UsernamePasswordAuthenticationToken(
+                        loginDTO.getUsername(),
+                        loginDTO.getPassword()
+                )
         );
-        String token = jwtTokenProvider.generateToken(authentication.getName());
-        return Map.of("token", token);
+
+        //  Obtener roles del objeto de autenticación
+        String username = authentication.getName();
+        List<String> roles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+
+        // Generar token pasando username y roles
+        String jwt = jwtTokenProvider.generateToken(username, roles);
+
+        return ResponseEntity.ok(jwt);
     }
 }
