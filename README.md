@@ -93,3 +93,31 @@ El proyecto sigue el patrón de diseño de capas para separar las responsabilida
 2. El **ProductService** solicita los datos al **Repository**.
 3. El **Repository** consulta la base de datos **MySQL** y devuelve una **Entidad**.
 4. El **ProductService** recibe la Entidad, la convierte en **DTO** mediante un Mapper y la devuelve al Controller.
+
+### 🛡️ Autorización (Roles)
+
+La API define dos roles principales con diferentes permisos:
+
+| Rol | Descripción | Permisos |
+| :--- | :--- | :--- |
+| **USER** | Usuario estándar | Lectura (`GET`) |
+| **ADMIN** | Administrador | Lectura (`GET`), Escritura (`POST`, `PUT`, `DELETE`) |
+
+### 🛤️ Mapeo de Endpoints y Roles
+
+| HTTP Método | Endpoint | Rol Requerido |
+| :--- | :--- | :--- |
+| `POST` | `/api/auth/**` | Ninguno (Público) |
+| `GET` | `/api/**` | `ROLE_USER`, `ROLE_ADMIN` |
+| `POST` | `/api/**` | `ROLE_ADMIN` |
+| `PUT` | `/api/**` | `ROLE_ADMIN` |
+| `DELETE` | `/api/**` | `ROLE_ADMIN` |
+
+---
+
+### ⚙️ Configuración (.env)
+
+Para ejecutar la aplicación, asegúrate de configurar las siguientes variables de entorno:
+
+* `JWT_SECRET`: Clave secreta para firmar los tokens (mínimo 32 caracteres).
+* `JWT_EXPIRATION`: Tiempo de validez del token en milisegundos.

@@ -43,6 +43,6 @@ public class AuthController {
         // Generar token pasando username y roles
         String jwt = jwtTokenProvider.generateToken(username, roles);
 
-        return ResponseEntity.ok(jwt);
+        return ResponseEntity.ok("token: " + jwt);
     }
 }
