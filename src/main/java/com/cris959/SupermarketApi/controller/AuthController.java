@@ -2,6 +2,8 @@ package com.cris959.SupermarketApi.controller;
 
 import com.cris959.SupermarketApi.config.JwtTokenProvider;
 import com.cris959.SupermarketApi.dto.LoginDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,6 +17,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Authentication", description = "Endpoints for login and registration")
 public class AuthController {
 
     @Autowired
@@ -23,7 +26,7 @@ public class AuthController {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
 
-
+    @Operation(summary = "Log in", description = "Authenticates the user and returns a JWT token")
     @PostMapping("/login")
     public ResponseEntity<String> authenticateUser(@RequestBody LoginDTO loginDTO) {
         // 1. CORRECCIÓN: Autenticar primero y guardar el resultado
