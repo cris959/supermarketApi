@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  supermarket-api:
+    build: ./SupermarketApi
+    # mem_limit: 512m
+    # CAMBIO AQUÍ: Usar estructura deploy para límites de recursos
+    deploy:
+        resources:
+          limits:
+            memory: 512m
+    ports:
+      - "8000:8000"
+    environment:
+      # Credenciales para la DB (usa el nombre del servicio 'mysql')
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/supermarket_db?createDatabaseIfNotExist=true&serverTimezone=UTC
+      USER_DB: ${DB_USER}         # Leerá el valor la variable de entorno
+      PASSWORD_DB: ${DB_PASSWORD} # Leerá el valor la variable de entorno
+
+      # Clave para JWT
+      JWT_SECRET: ${JWT_SECRET} # Leerá el valor la variable de entorno
+    restart: always
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  mysql:
+    image: mysql:8.0.33
+    ports:
+      - "3307:3306" # Mapeado al 3307 para evitar conflictos locales
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD} # Leerá el valor la variable de entorno
+      MYSQL_DATABASE: supermarket_db
+    restart: always
+    volumes:
+      - db_data:/var/lib/mysql # Persistencia de datos
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  db_data:
